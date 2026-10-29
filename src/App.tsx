@@ -200,6 +200,14 @@ const AppContent: React.FC = () => {
                 <li>GET  /api/cart</li>
                 <li>POST /api/orders</li>
               </ul>
+              <a
+                href="/docs/system-docs.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-3 text-xs bg-amber-700 hover:bg-amber-600 text-white px-3 py-1.5 rounded transition-colors"
+              >
+                📄 Открыть документацию
+              </a>
             </div>
             <div>
               <h4 className="font-semibold text-white mb-3">Backend</h4>
