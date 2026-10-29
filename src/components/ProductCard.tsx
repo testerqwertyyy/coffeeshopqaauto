@@ -1,5 +1,5 @@
 import React from 'react';
-import { Product } from '../types';
+import { Product } from '../services/api';
 
 interface ProductCardProps {
   product: Product;
@@ -8,17 +8,24 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails, onAddToCart }) => {
-  const roastColors = {
+  const roastColors: Record<string, string> = {
     light: 'bg-amber-100 text-amber-800',
     medium: 'bg-orange-100 text-orange-800',
     dark: 'bg-stone-200 text-stone-800'
   };
 
-  const roastLabels = {
+  const roastLabels: Record<string, string> = {
     light: 'Light Roast',
     medium: 'Medium Roast',
     dark: 'Dark Roast'
   };
+
+  let flavorNotes: string[] = [];
+  try {
+    flavorNotes = JSON.parse(product.flavor_notes || '[]');
+  } catch {
+    flavorNotes = [];
+  }
 
   return (
     <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group border border-amber-50">
@@ -29,8 +36,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails, onAdd
           className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-3 left-3">
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${roastColors[product.roastLevel]}`}>
-            {roastLabels[product.roastLevel]}
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${roastColors[product.roast_level] || roastColors.light}`}>
+            {roastLabels[product.roast_level] || product.roast_level}
           </span>
         </div>
         <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
@@ -44,13 +51,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails, onAdd
             {product.name}
           </h3>
         </div>
-        
+
         <p className="text-sm text-stone-500 mb-3 flex items-center gap-1">
           <span>📍</span> {product.origin} · {product.weight}
         </p>
 
         <div className="flex flex-wrap gap-1.5 mb-4">
-          {product.flavorNotes.slice(0, 3).map(note => (
+          {flavorNotes.slice(0, 3).map(note => (
             <span
               key={note}
               className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-100"

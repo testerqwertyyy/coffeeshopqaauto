@@ -16,7 +16,7 @@ const Cart: React.FC<CartProps> = ({ onClose, onCheckout }) => {
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Cart Panel */}
       <div className="relative ml-auto w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-slide-in">
         {/* Header */}
@@ -49,7 +49,7 @@ const Cart: React.FC<CartProps> = ({ onClose, onCheckout }) => {
             <div className="space-y-4">
               {items.map(item => (
                 <div
-                  key={item.product.id}
+                  key={item.id}
                   className="flex gap-4 bg-amber-50/50 rounded-xl p-3 border border-amber-100"
                 >
                   <img
@@ -68,7 +68,7 @@ const Cart: React.FC<CartProps> = ({ onClose, onCheckout }) => {
                   </div>
                   <div className="flex flex-col items-end justify-between">
                     <button
-                      onClick={() => removeFromCart(item.product.id)}
+                      onClick={() => removeFromCart(item.id)}
                       className="text-stone-400 hover:text-red-500 transition-colors"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,7 +77,7 @@ const Cart: React.FC<CartProps> = ({ onClose, onCheckout }) => {
                     </button>
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         className="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-amber-200 text-amber-800 hover:bg-amber-100 transition-colors text-sm font-bold"
                       >
                         −
@@ -86,7 +86,7 @@ const Cart: React.FC<CartProps> = ({ onClose, onCheckout }) => {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         className="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-amber-200 text-amber-800 hover:bg-amber-100 transition-colors text-sm font-bold"
                       >
                         +

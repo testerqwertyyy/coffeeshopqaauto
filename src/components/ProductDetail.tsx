@@ -1,5 +1,5 @@
 import React from 'react';
-import { Product } from '../types';
+import { Product } from '../services/api';
 
 interface ProductDetailProps {
   product: Product;
@@ -8,11 +8,18 @@ interface ProductDetailProps {
 }
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack, onAddToCart }) => {
-  const roastLabels = {
+  const roastLabels: Record<string, string> = {
     light: 'Light Roast',
     medium: 'Medium Roast',
     dark: 'Dark Roast'
   };
+
+  let flavorNotes: string[] = [];
+  try {
+    flavorNotes = JSON.parse(product.flavor_notes || '[]');
+  } catch {
+    flavorNotes = [];
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -35,7 +42,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack, onAddToC
               className="w-full h-72 md:h-full object-cover"
             />
             <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full">
-              <span className="text-sm font-semibold text-amber-800">{roastLabels[product.roastLevel]}</span>
+              <span className="text-sm font-semibold text-amber-800">
+                {roastLabels[product.roast_level] || product.roast_level}
+              </span>
             </div>
           </div>
 
@@ -43,7 +52,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack, onAddToC
             <div className="flex-1">
               <p className="text-sm text-amber-600 font-medium mb-1">📍 {product.origin}</p>
               <h1 className="text-2xl md:text-3xl font-bold text-stone-800 mb-4">{product.name}</h1>
-              
+
               <p className="text-stone-600 leading-relaxed mb-6">{product.description}</p>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
@@ -60,15 +69,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack, onAddToC
                   <p className="font-semibold text-stone-800 text-sm">{product.weight}</p>
                 </div>
                 <div className="bg-amber-50 rounded-xl p-3">
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">Roast Level</p>
-                  <p className="font-semibold text-stone-800 text-sm">{roastLabels[product.roastLevel]}</p>
+                  <p className="text-xs text-stone-500 uppercase tracking-wide">Stock</p>
+                  <p className="font-semibold text-stone-800 text-sm">{product.stock} units</p>
                 </div>
               </div>
 
               <div className="mb-6">
                 <p className="text-sm font-semibold text-stone-700 mb-2">Flavor Notes</p>
                 <div className="flex flex-wrap gap-2">
-                  {product.flavorNotes.map(note => (
+                  {flavorNotes.map(note => (
                     <span
                       key={note}
                       className="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-sm font-medium"

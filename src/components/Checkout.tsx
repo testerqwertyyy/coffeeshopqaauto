@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { ordersApi } from '../services/api';
 
 interface CheckoutProps {
   onClose: () => void;
@@ -7,38 +9,43 @@ interface CheckoutProps {
 }
 
 const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice, refreshCart } = useCart();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    customer_name: user?.full_name || user?.username || '',
+    customer_email: user?.email || '',
     address: '',
     city: '',
-    zip: '',
-    cardNumber: '',
-    expiry: '',
-    cvv: ''
+    zip_code: '',
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setIsProcessing(true);
-    
-    // Simulate order processing
-    setTimeout(() => {
-      setIsProcessing(false);
+
+    try {
+      const order = await ordersApi.create(formData);
+      setOrderId(order.id);
+      await refreshCart();
       setIsSuccess(true);
-      clearCart();
-      
+
       setTimeout(() => {
         onComplete();
       }, 3000);
-    }, 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to create order');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (isSuccess) {
@@ -51,11 +58,13 @@ const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
           <p className="text-stone-600 mb-4">
             Thank you for your order. Your specialty coffee is being prepared with care.
           </p>
-          <p className="text-sm text-amber-700 font-medium">
-            Order #{Math.random().toString(36).substr(2, 9).toUpperCase()}
-          </p>
+          {orderId && (
+            <p className="text-sm text-amber-700 font-medium">
+              Order #{orderId}
+            </p>
+          )}
           <div className="mt-6 text-sm text-stone-500">
-            Redirecting to shop...
+            Redirecting to your orders...
           </div>
         </div>
       </div>
@@ -65,7 +74,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      
+
       <div className="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full my-8 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-amber-800 to-amber-900 text-white p-6">
@@ -92,7 +101,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
           <h3 className="font-semibold text-stone-700 mb-3">Order Summary</h3>
           <div className="space-y-2">
             {items.map(item => (
-              <div key={item.product.id} className="flex justify-between text-sm">
+              <div key={item.id} className="flex justify-between text-sm">
                 <span className="text-stone-600">
                   {item.product.name} × {item.quantity}
                 </span>
@@ -110,6 +119,12 @@ const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
           <div>
             <h3 className="font-semibold text-stone-700 mb-3">Shipping Information</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -117,8 +132,8 @@ const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
                 <label className="block text-sm font-medium text-stone-600 mb-1">Full Name</label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="customer_name"
+                  value={formData.customer_name}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-2.5 border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
@@ -129,8 +144,8 @@ const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
                 <label className="block text-sm font-medium text-stone-600 mb-1">Email</label>
                 <input
                   type="email"
-                  name="email"
-                  value={formData.email}
+                  name="customer_email"
+                  value={formData.customer_email}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-2.5 border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
@@ -165,8 +180,8 @@ const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
                 <label className="block text-sm font-medium text-stone-600 mb-1">ZIP Code</label>
                 <input
                   type="text"
-                  name="zip"
-                  value={formData.zip}
+                  name="zip_code"
+                  value={formData.zip_code}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-2.5 border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
@@ -176,57 +191,16 @@ const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
             </div>
           </div>
 
-          <div>
-            <h3 className="font-semibold text-stone-700 mb-3">Payment (Demo)</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-stone-600 mb-1">Card Number</label>
-                <input
-                  type="text"
-                  name="cardNumber"
-                  value={formData.cardNumber}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2.5 border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
-                  placeholder="4242 4242 4242 4242"
-                  maxLength={19}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">Expiry</label>
-                <input
-                  type="text"
-                  name="expiry"
-                  value={formData.expiry}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2.5 border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
-                  placeholder="MM/YY"
-                  maxLength={5}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-600 mb-1">CVV</label>
-                <input
-                  type="text"
-                  name="cvv"
-                  value={formData.cvv}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2.5 border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all"
-                  placeholder="123"
-                  maxLength={4}
-                />
-              </div>
-            </div>
-            <p className="text-xs text-stone-400 mt-2">
-              🔒 This is a demo — no real payment will be processed.
+          <div className="bg-amber-50 rounded-xl p-4">
+            <p className="text-sm text-amber-800 font-medium">💳 Payment</p>
+            <p className="text-xs text-stone-500 mt-1">
+              Payment is simulated — no real charges will be made.
             </p>
           </div>
 
           <button
             type="submit"
-            disabled={isProcessing}
+            disabled={isProcessing || items.length === 0}
             className="w-full py-3.5 bg-amber-800 text-white rounded-xl font-semibold text-lg hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-amber-800/20"
           >
             {isProcessing ? (
@@ -235,7 +209,7 @@ const Checkout: React.FC<CheckoutProps> = ({ onClose, onComplete }) => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Processing...
+                Processing order...
               </span>
             ) : (
               `Place Order — $${totalPrice.toFixed(2)}`
