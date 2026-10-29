@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Artisan Roast — Техническая документация</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #fdfaf5;
+    --surface: #ffffff;
+    --border: #e8dcc4;
+    --text: #2d2416;
+    --muted: #7a6a52;
+    --accent: #7c4a1e;
+    --accent-light: #f5e6d3;
+    --code-bg: #f8f1e6;
+    --success: #2d7a4f;
+    --warn: #b8860b;
+    --danger: #a63d2f;
+    --info: #2c5f8a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    display: flex;
+    min-height: 100vh;
+  }
+  /* Sidebar */
+  aside {
+    width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  aside h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    padding: 0 24px 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  aside .brand {
+    padding: 0 24px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  aside nav a {
+    display: block;
+    padding: 8px 24px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  aside nav a:hover {
+    background: var(--accent-light);
+    border-left-color: var(--accent);
+    color: var(--accent);
+  }
+  aside nav a.section {
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 12px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+  }
+  /* Main */
+  main {
+    flex: 1;
+    max-width: 1000px;
+    padding: 40px 56px 80px;
+  }
+  h1 {
+    font-size: 36px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 12px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 16px;
+    margin-bottom: 40px;
+  }
+  h2 {
+    font-size: 26px;
+    color: var(--accent);
+    margin: 48px 0 16px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  h2:first-of-type { border-top: none; margin-top: 0; }
+  h3 {
+    font-size: 19px;
+    color: var(--text);
+    margin: 28px 0 12px;
+  }
+  h4 {
+    font-size: 15px;
+    color: var(--accent);
+    margin: 18px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  p { margin-bottom: 12px; }
+  ul, ol { margin: 0 0 16px 24px; }
+  li { margin-bottom: 4px; }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  pre {
+    background: #2d2416;
+    color: #f5e6d3;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+  .mermaid {
+    background: var(--surface);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin: 16px 0 24px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 24px;
+    background: var(--surface);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  th {
+    background: var(--accent);
+    color: white;
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--accent-light); }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+  }
+  .badge-get { background: #dbeafe; color: #1e40af; }
+  .badge-post { background: #d1fae5; color: #065f46; }
+  .badge-put { background: #fef3c7; color: #92400e; }
+  .badge-delete { background: #fee2e2; color: #991b1b; }
+  .badge-auth { background: #ede9fe; color: #5b21b6; }
+  .callout {
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 16px 0;
+    border-left: 4px solid;
+    font-size: 14px;
+  }
+  .callout-info { background: #eff6ff; border-color: var(--info); }
+  .callout-warn { background: #fffbeb; border-color: var(--warn); }
+  .callout-success { background: #ecfdf5; border-color: var(--success); }
+  .callout-danger { background: #fef2f2; border-color: var(--danger); }
+  .callout strong { display: block; margin-bottom: 4px; }
+  .toc-inline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 24px;
+    margin: 20px 0 32px;
+  }
+  .toc-inline ol { margin: 0; padding-left: 20px; }
+  .toc-inline li { margin: 4px 0; }
+  .endpoint-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 14px 0;
+  }
+  .endpoint-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .endpoint-path {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 900px) {
+    aside { display: none; }
+    main { padding: 24px; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  .version-tag {
+    display: inline-block;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">☕ Artisan Roast</div>
+  <h2>Документация</h2>
+  <nav>
+    <a href="#overview" class="section">Обзор</a>
+    <a href="#overview">1. Краткое описание</a>
+    <a href="#goals">2. Цели и задачи</a>
+    <a href="#stack">3. Технологический стек</a>
+
+    <a href="#architecture" class="section">Архитектура</a>
+    <a href="#arch-diagram">4. Общая архитектура</a>
+    <a href="#components">5. Компоненты системы</a>
+    <a href="#layers">6. Слои приложения</a>
+
+    <a href="#database" class="section">База данных</a>
+    <a href="#er-diagram">7. ER-диаграмма</a>
+    <a href="#tables">8. Описание таблиц</a>
+    <a href="#relations">9. Связи и индексы</a>
+
+    <a href="#api" class="section">API Reference</a>
+    <a href="#api-auth">10. Auth (3)</a>
+    <a href="#api-products">11. Products (2)</a>
+    <a href="#api-cart">12. Cart (5)</a>
+    <a href="#api-orders">13. Orders (3)</a>
+    <a href="#api-summary">14. Сводная таблица</a>
+
+    <a href="#flows" class="section">Потоки данных</a>
+    <a href="#flow-auth">15. Авторизация</a>
+    <a href="#flow-cart">16. Работа с корзиной</a>
+    <a href="#flow-order">17. Оформление заказа</a>
+
+    <a href="#states" class="section">Состояния</a>
+    <a href="#state-order">18. Жизненный цикл заказа</a>
+    <a href="#state-user">19. Состояния пользователя</a>
+
+    <a href="#security" class="section">Безопасность</a>
+    <a href="#auth-flow">20. JWT-аутентификация</a>
+
+    <a href="#deploy" class="section">Развёртывание</a>
+    <a href="#deploy-steps">21. Инструкция по запуску</a>
+  </nav>
+</aside>
+
+<main>
+<h1>Artisan Roast <span class="version-tag">v1.0.0</span></h1>
+<p class="subtitle">Техническая документация системы электронной коммерции спешелти-кофе.<br>
+Подготовлено: системный аналитик · Дата: 2024 · Статус: Production Ready</p>
+
+<div class="toc-inline">
+  <strong>📑 Содержание</strong>
+  <ol>
+    <li><a href="#overview">Краткое описание проекта</a></li>
+    <li><a href="#goals">Цели и задачи системы</a></li>
+    <li><a href="#stack">Технологический стек</a></li>
+    <li><a href="#arch-diagram">Общая архитектура (C4)</a></li>
+    <li><a href="#components">Компоненты системы</a></li>
+    <li><a href="#layers">Слои приложения</a></li>
+    <li><a href="#er-diagram">ER-диаграмма БД</a></li>
+    <li><a href="#tables">Описание таблиц</a></li>
+    <li><a href="#relations">Связи и индексы</a></li>
+    <li>–14. <a href="#api">API Reference (13 endpoints)</a></li>
+    <li>–17. <a href="#flows">Потоки данных (Sequence Diagrams)</a></li>
+    <li>–19. <a href="#states">Диаграммы состояний</a></li>
+    <li>–20. <a href="#security">Безопасность</a></li>
+    <li><a href="#deploy-steps">Инструкция по развёртыванию</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════ 1. OVERVIEW ═══════════════ -->
+<h2 id="overview">1. Краткое описание проекта</h2>
+<p><strong>Artisan Roast</strong> — полнофункциональное веб-приложение электронной коммерции, специализирующееся на продаже спешелти-кофе. Система предоставляет конечным пользователям возможность просматривать каталог кофе, фильтровать по степени обжарки, управлять корзиной и оформлять заказы. Административная часть включает управление товарами через seed-данные и отслеживание заказов.</p>
+
+<div class="callout callout-info">
+  <strong>💡 Ключевая особенность</strong>
+  Система построена по классической трёхзвенной архитектуре: клиент (SPA) → API-сервер → реляционная БД. Все взаимодействия между фронтендом и бэкендом происходят через RESTful API с JWT-аутентификацией.
+</div>
+
+<h3>Границы системы (System Context)</h3>
+<div class="mermaid">
+graph TB
+    User((👤 Покупатель)) -->|HTTP/HTTPS| FE[Frontend SPA<br/>React + Vite]
+    FE -->|REST API + JWT| BE[Backend API<br/>FastAPI + Python]
+    BE -->|SQLAlchemy ORM| DB[(SQLite<br/>app.db)]
+    BE -->|HTTPS| CDN[CDN изображений<br/>Unsplash]
+
+    subgraph "Внешние акторы"
+        User
+        CDN
+    end
+    subgraph "Artisan Roast System"
+        FE
+        BE
+        DB
+    end
+
+    style User fill:#f5e6d3,stroke:#7c4a1e
+    style FE fill:#dbeafe,stroke:#1e40af
+    style BE fill:#d1fae5,stroke:#065f46
+    style DB fill:#fef3c7,stroke:#92400e
+</div>
+
+<!-- ═══════════════ 2. GOALS ═══════════════ -->
+<h2 id="goals">2. Цели и задачи системы</h2>
+
+<h3>Бизнес-цели</h3>
+<ul>
+  <li>Предоставить покупателям удобный каталог спешелти-кофе с детальной информацией о каждом лоте</li>
+  <li>Обеспечить полный цикл покупки: просмотр → корзина → оформление → история заказов</li>
+  <li>Персонализировать опыт через регистрацию и привязку корзины/заказов к аккаунту</li>
+</ul>
+
+<h3>Функциональные требования</h3>
+<table>
+  <tr><th>ID</th><th>Требование</th><th>Приоритет</th></tr>
+  <tr><td>FR-01</td><td>Регистрация и авторизация пользователей</td><td>Must</td></tr>
+  <tr><td>FR-02</td><td>Просмотр каталога товаров (6 позиций)</td><td>Must</td></tr>
+  <tr><td>FR-03</td><td>Поиск по названию, стране, вкусовым нотам</td><td>Must</td></tr>
+  <tr><td>FR-04</td><td>Фильтрация по степени обжарки (light/medium/dark)</td><td>Must</td></tr>
+  <tr><td>FR-05</td><td>Просмотр детальной карточки товара</td><td>Must</td></tr>
+  <tr><td>FR-06</td><td>Добавление/удаление товаров в корзину</td><td>Must</td></tr>
+  <tr><td>FR-07</td><td>Изменение количества в корзине</td><td>Must</td></tr>
+  <tr><td>FR-08</td><td>Оформление заказа с указанием доставки</td><td>Must</td></tr>
+  <tr><td>FR-09</td><td>Просмотр истории заказов</td><td>Should</td></tr>
+  <tr><td>FR-10</td><td>Адаптивный дизайн (mobile + desktop)</td><td>Must</td></tr>
+</table>
+
+<h3>Нефункциональные требования</h3>
+<table>
+  <tr><th>ID</th><th>Требование</th><th>Значение</th></tr>
+  <tr><td>NFR-01</td><td>Время ответа API</td><td>&lt; 200ms (p95)</td></tr>
+  <tr><td>NFR-02</td><td>Поддерживаемые браузеры</td><td>Chrome, Firefox, Safari, Edge (последние 2 версии)</td></tr>
+  <tr><td>NFR-03</td><td>Минимальное разрешение</td><td>320×568 (mobile)</td></tr>
+  <tr><td>NFR-04</td><td>Безопасность паролей</td><td>bcrypt hashing</td></tr>
+  <tr><td>NFR-05</td><td>Срок жизни JWT</td><td>24 часа</td></tr>
+</table>
+
+<!-- ═══════════════ 3. STACK ═══════════════ -->
+<h2 id="stack">3. Технологический стек</h2>
+<div class="grid-2">
+  <div>
+    <h4>Frontend</h4>
+    <ul>
+      <li><strong>React 18</strong> — UI-библиотека</li>
+      <li><strong>TypeScript</strong> — типизация</li>
+      <li><strong>Vite 6</strong> — сборщик</li>
+      <li><strong>Tailwind CSS 4</strong> — стилизация</li>
+      <li><strong>Fetch API</strong> — HTTP-клиент</li>
+    </ul>
+  </div>
+  <div>
+    <h4>Backend</h4>
+    <ul>
+      <li><strong>Python 3.10+</strong> — язык</li>
+      <li><strong>FastAPI 0.115</strong> — веб-фреймворк</li>
+      <li><strong>SQLAlchemy 2.0</strong> — ORM</li>
+      <li><strong>SQLite</strong> — СУБД</li>
+      <li><strong>Pydantic 2.9</strong> — валидация</li>
+      <li><strong>python-jose</strong> — JWT</li>
+      <li><strong>passlib + bcrypt</strong> — хеширование</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════ 4. ARCHITECTURE ═══════════════ -->
+<h2 id="arch-diagram">4. Общая архитектура (C4 — Container)</h2>
+<div class="mermaid">
+graph TB
+    subgraph Browser["🌐 Браузер"]
+        SPA["Single Page Application<br/><i>React + TypeScript</i><br/>─────────────<br/>• Роутинг (state-based)<br/>• Управление состоянием (Context)<br/>• HTTP-клиент"]
+    end
+
+    subgraph Server["⚙️ API-сервер"]
+        API["FastAPI Application<br/><i>Python + Uvicorn</i><br/>─────────────<br/>• REST Endpoints<br/>• JWT Middleware<br/>• CORS<br/>• Dependency Injection"]
+        ORM["SQLAlchemy ORM<br/>─────────────<br/>• Модели данных<br/>• Сессии БД<br/>• Миграции (auto-create)"]
+    end
+
+    subgraph Storage["💾 Хранилище"]
+        SQLite[(SQLite Database<br/><i>app.db</i><br/>─────────────<br/>• 5 таблиц<br/>• FK constraints<br/>• Indexes])]
+    end
+
+    SPA -->|"GET/POST/PUT/DELETE<br/>/api/*<br/>+ Bearer JWT"| API
+    API --> ORM
+    ORM -->|"SQL queries"| SQLite
+
+    style SPA fill:#dbeafe,stroke:#1e40af
+    style API fill:#d1fae5,stroke:#065f46
+    style ORM fill:#d1fae5,stroke:#065f46
+    style SQLite fill:#fef3c7,stroke:#92400e
+</div>
+
+<!-- ═══════════════ 5. COMPONENTS ═══════════════ -->
+<h2 id="components">5. Компоненты системы</h2>
+
+<h3>Frontend компоненты</h3>
+<div class="mermaid">
+graph LR
+    App[App.tsx] --> AuthP[AuthProvider]
+    App --> CartP[CartProvider]
+    App --> Header
+    App --> Views
+
+    subgraph Views["Views (state-based routing)"]
+        Shop[Shop View]
+        Detail[Product Detail]
+        Orders[Orders Panel]
+    end
+
+    subgraph Modals["Модальные окна"]
+        Cart[Cart Panel]
+        Checkout[Checkout Form]
+        Auth[Auth Modal]
+    end
+
+    subgraph Services["Сервисы"]
+        Api[API Client<br/>services/api.ts]
+    end
+
+    Shop --> ProductCard[ProductCard]
+    Shop --> SearchFilter[SearchFilter]
+    Detail --> ProductDetail[ProductDetail]
+    Views --> Modals
+    Modals --> Api
+    Views --> Api
+
+    style Api fill:#ede9fe,stroke:#5b21b6
+</div>
+
+<h3>Backend компоненты</h3>
+<div class="mermaid">
+graph TB
+    subgraph FastAPI["FastAPI Application"]
+        R1[Auth Router<br/>/api/auth/*]
+        R2[Products Router<br/>/api/products/*]
+        R3[Cart Router<br/>/api/cart/*]
+        R4[Orders Router<br/>/api/orders/*]
+        R5[Health<br/>/api/health]
+    end
+
+    subgraph Middleware["Middleware & Dependencies"]
+        JWT[JWT Auth<br/>get_current_user]
+        DB[DB Session<br/>get_db]
+        CORS[CORS Middleware]
+    end
+
+    subgraph Domain["Domain Layer"]
+        Models[SQLAlchemy Models]
+        Schemas[Pydantic Schemas]
+    end
+
+    R1 --> JWT
+    R2 --> DB
+    R3 --> JWT
+    R3 --> DB
+    R4 --> JWT
+    R4 --> DB
+    JWT --> Models
+    DB --> Models
+    R1 --> Schemas
+    R2 --> Schemas
+    R3 --> Schemas
+    R4 --> Schemas
+
+    style JWT fill:#fee2e2,stroke:#991b1b
+    style DB fill:#dbeafe,stroke:#1e40af
+</div>
+
+<!-- ═══════════════ 6. LAYERS ═══════════════ -->
+<h2 id="layers">6. Слои приложения</h2>
+
+<h3>Backend — слоистая архитектура</h3>
+<table>
+  <tr><th>Слой</th><th>Файл</th><th>Ответственность</th></tr>
+  <tr><td><strong>Transport</strong></td><td>main.py</td><td>HTTP-роуты, request/response, middleware, DI</td></tr>
+  <tr><td><strong>Validation</strong></td><td>schemas.py</td><td>Pydantic-схемы, валидация входных/выходных данных</td></tr>
+  <tr><td><strong>Domain</strong></td><td>models.py</td><td>Бизнес-модели, ORM-маппинг, связи между сущностями</td></tr>
+  <tr><td><strong>Infrastructure</strong></td><td>database.py</td><td>Подключение к БД, управление сессиями, инициализация</td></tr>
+</table>
+
+<h3>Frontend — архитектура состояний</h3>
+<table>
+  <tr><th>Слой</th><th>Директория</th><th>Ответственность</th></tr>
+  <tr><td><strong>Presentation</strong></td><td>components/</td><td>UI-компоненты, рендеринг, пользовательские события</td></tr>
+  <tr><td><strong>State</strong></td><td>context/</td><td>Глобальное состояние (Auth, Cart) через React Context</td></tr>
+  <tr><td><strong>Service</strong></td><td>services/</td><td>API-клиент, HTTP-запросы, работа с токенами</td></tr>
+  <tr><td><strong>Types</strong></td><td>types/, services/api.ts</td><td>TypeScript-интерфейсы, контракты данных</td></tr>
+</table>
+
+<!-- ═══════════════ 7. ER DIAGRAM ═══════════════ -->
+<h2 id="er-diagram">7. ER-диаграмма базы данных</h2>
+<div class="mermaid">
+erDiagram
+    USERS ||--o{ CART_ITEMS : "имеет"
+    USERS ||--o{ ORDERS : "размещает"
+    PRODUCTS ||--o{ CART_ITEMS : "добавлен в"
+    PRODUCTS ||--o{ ORDER_ITEMS : "входит в"
+    ORDERS ||--|{ ORDER_ITEMS : "содержит"
+
+    USERS {
+        int id PK "AUTOINCREMENT"
+        string email UK "UNIQUE, INDEX"
+        string username UK "UNIQUE, INDEX"
+        string hashed_password "bcrypt"
+        string full_name "nullable"
+        datetime created_at "DEFAULT now()"
+    }
+
+    PRODUCTS {
+        int id PK "AUTOINCREMENT"
+        string name "NOT NULL"
+        string origin "NOT NULL"
+        string category "light|medium|dark"
+        string roast_level "NOT NULL"
+        float price "NOT NULL"
+        string weight "250g"
+        text description "NOT NULL"
+        string flavor_notes "JSON array"
+        string altitude "1,900 - 2,200m"
+        string process "Washed|Natural|Honey"
+        string image "URL"
+        int stock "DEFAULT 100"
+    }
+
+    CART_ITEMS {
+        int id PK "AUTOINCREMENT"
+        int user_id FK "→ users.id"
+        int product_id FK "→ products.id"
+        int quantity "DEFAULT 1"
+        datetime added_at "DEFAULT now()"
+    }
+
+    ORDERS {
+        int id PK "AUTOINCREMENT"
+        int user_id FK "→ users.id"
+        string status "pending|confirmed|shipped|delivered"
+        float total "NOT NULL"
+        string customer_name "snapshot"
+        string customer_email "snapshot"
+        string address "NOT NULL"
+        string city "NOT NULL"
+        string zip_code "NOT NULL"
+        datetime created_at "DEFAULT now()"
+    }
+
+    ORDER_ITEMS {
+        int id PK "AUTOINCREMENT"
+        int order_id FK "→ orders.id"
+        int product_id FK "→ products.id"
+        string product_name "snapshot"
+        int quantity "NOT NULL"
+        float unit_price "snapshot"
+    }
+</div>
+
+<!-- ═══════════════ 8. TABLES ═══════════════ -->
+<h2 id="tables">8. Описание таблиц</h2>
+
+<h3>8.1. Таблица <code>users</code></h3>
+<p>Хранит учётные записи покупателей. Пароли хранятся исключительно в хешированном виде (bcrypt).</p>
+<table>
+  <tr><th>Колонка</th><th>Тип</th><th>Ограничения</th><th>Описание</th></tr>
+  <tr><td><code>id</code></td><td>INTEGER</td><td>PK, AUTOINCREMENT</td><td>Уникальный идентификатор</td></tr>
+  <tr><td><code>email</code></td><td>VARCHAR(120)</td><td>UNIQUE, NOT NULL, INDEX</td><td>Email для восстановления/уведомлений</td></tr>
+  <tr><td><code>username</code></td><td>VARCHAR(50)</td><td>UNIQUE, NOT NULL, INDEX</td><td>Логин для входа</td></tr>
+  <tr><td><code>hashed_password</code></td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Bcrypt-хеш пароля</td></tr>
+  <tr><td><code>full_name</code></td><td>VARCHAR(100)</td><td>NULLABLE</td><td>Отображаемое имя</td></tr>
+  <tr><td><code>created_at</code></td><td>DATETIME</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Дата регистрации</td></tr>
+</table>
+
+<h3>8.2. Таблица <code>products</code></h3>
+<p>Каталог товаров. Заполняется при первом запуске через seed-функцию (6 позиций).</p>
+<table>
+  <tr><th>Колонка</th><th>Тип</th><th>Описание</th></tr>
+  <tr><td><code>id</code></td><td>INTEGER PK</td><td>ID товара</td></tr>
+  <tr><td><code>name</code></td><td>VARCHAR(100)</td><td>Название (напр. "Ethiopia Yirgacheffe")</td></tr>
+  <tr><td><code>origin</code></td><td>VARCHAR(60)</td><td>Страна происхождения</td></tr>
+  <tr><td><code>category</code></td><td>VARCHAR(20)</td><td>Категория: light / medium / dark</td></tr>
+  <tr><td><code>roast_level</code></td><td>VARCHAR(20)</td><td>Степень обжарки</td></tr>
+  <tr><td><code>price</code></td><td>FLOAT</td><td>Цена за упаковку</td></tr>
+  <tr><td><code>weight</code></td><td>VARCHAR(20)</td><td>Вес упаковки (250g)</td></tr>
+  <tr><td><code>description</code></td><td>TEXT</td><td>Полное описание</td></tr>
+  <tr><td><code>flavor_notes</code></td><td>VARCHAR(255)</td><td>JSON-массив вкусовых нот</td></tr>
+  <tr><td><code>altitude</code></td><td>VARCHAR(50)</td><td>Высота произрастания</td></tr>
+  <tr><td><code>process</code></td><td>VARCHAR(50)</td><td>Метод обработки</td></tr>
+  <tr><td><code>image</code></td><td>VARCHAR(500)</td><td>URL изображения</td></tr>
+  <tr><td><code>stock</code></td><td>INTEGER</td><td>Остаток на складе (DEFAULT 100)</td></tr>
+</table>
+
+<h3>8.3. Таблица <code>cart_items</code></h3>
+<p>Связующая таблица «пользователь ↔ товар» для корзины. Один пользователь может иметь несколько позиций.</p>
+
+<h3>8.4. Таблица <code>orders</code></h3>
+<p>Заказы пользователей. Содержит snapshot контактных данных на момент оформления.</p>
+
+<h3>8.5. Таблица <code>order_items</code></h3>
+<p>Позиции заказа. Хранит snapshot названия и цены товара на момент покупки (для истории, даже если цена в каталоге изменится).</p>
+
+<!-- ═══════════════ 9. RELATIONS ═══════════════ -->
+<h2 id="relations">9. Связи и индексы</h2>
+<div class="mermaid">
+graph LR
+    subgraph "Foreign Keys"
+        A[CART_ITEMS.user_id] -->|N:1| B[USERS.id]
+        C[CART_ITEMS.product_id] -->|N:1| D[PRODUCTS.id]
+        E[ORDERS.user_id] -->|N:1| B
+        F[ORDER_ITEMS.order_id] -->|N:1| G[ORDERS.id]
+        H[ORDER_ITEMS.product_id] -->|N:1| D
+    end
+
+    subgraph "Indexes"
+        I[USERS.email] 
+        J[USERS.username]
+    end
+
+    subgraph "Cascade Rules"
+        K[USERS → CART_ITEMS: delete-orphan]
+        L[USERS → ORDERS: delete-orphan]
+        M[ORDERS → ORDER_ITEMS: delete-orphan]
+    end
+</div>
+
+<div class="callout callout-warn">
+  <strong>⚠️ Важное замечание</strong>
+  При удалении пользователя каскадно удаляются все его корзины и заказы. При создании заказа корзина очищается, но товары не удаляются из каталога — только уменьшается <code>stock</code>.
+</div>
+
+<!-- ═══════════════ 10-14. API ═══════════════ -->
+<h2 id="api">10–14. API Reference</h2>
+<p>Все endpoints начинаются с префикса <code>/api</code>. Аутентифицированные endpoints требуют заголовок <code>Authorization: Bearer &lt;jwt_token&gt;</code>.</p>
+
+<h3 id="api-auth">10. Auth — Аутентификация</h3>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-post">POST</span>
+    <span class="endpoint-path">/api/auth/register</span>
+    <span class="badge badge-auth">public</span>
+  </div>
+  <p>Регистрация нового пользователя. При успехе возвращает JWT-токен.</p>
+  <h4>Request Body</h4>
+<pre><code>{
+  "email": "john@example.com",
+  "username": "john",
+  "password": "secret123",
+  "full_name": "John Doe"     // optional
+}</code></pre>
+  <h4>Response 200</h4>
+<pre><code>{
+  "access_token": "eyJhbGciOi...",
+  "token_type": "bearer",
+  "user": { "id": 1, "email": "...", "username": "john", ... }
+}</code></pre>
+  <h4>Errors</h4>
+  <ul>
+    <li><code>400</code> — Email already registered / Username already taken</li>
+  </ul>
+</div>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-post">POST</span>
+    <span class="endpoint-path">/api/auth/login</span>
+    <span class="badge badge-auth">public</span>
+  </div>
+  <p>Аутентификация пользователя. Возвращает JWT-токен.</p>
+  <h4>Request Body</h4>
+<pre><code>{ "username": "john", "password": "secret123" }</code></pre>
+  <h4>Errors</h4>
+  <ul><li><code>401</code> — Invalid credentials</li></ul>
+</div>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span>
+    <span class="endpoint-path">/api/auth/me</span>
+    <span class="badge badge-auth">🔒 required</span>
+  </div>
+  <p>Получение профиля текущего пользователя по JWT-токену.</p>
+</div>
+
+<h3 id="api-products">11. Products — Каталог</h3>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span>
+    <span class="endpoint-path">/api/products</span>
+    <span class="badge badge-auth">public</span>
+  </div>
+  <p>Получение списка товаров с опциональными фильтрами.</p>
+  <h4>Query Parameters</h4>
+  <table>
+    <tr><th>Параметр</th><th>Тип</th><th>Описание</th></tr>
+    <tr><td><code>category</code></td><td>string</td><td>light | medium | dark | all</td></tr>
+    <tr><td><code>search</code></td><td>string</td><td>Поиск по name, origin, description (ILIKE)</td></tr>
+  </table>
+  <h4>Пример</h4>
+  <pre><code>GET /api/products?category=light&search=ethiopia</code></pre>
+</div>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span>
+    <span class="endpoint-path">/api/products/{product_id}</span>
+    <span class="badge badge-auth">public</span>
+  </div>
+  <p>Получение одного товара по ID.</p>
+  <ul><li><code>404</code> — Product not found</li></ul>
+</div>
+
+<h3 id="api-cart">12. Cart — Корзина</h3>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span>
+    <span class="endpoint-path">/api/cart</span>
+    <span class="badge badge-auth">🔒 required</span>
+  </div>
+  <p>Получение содержимого корзины текущего пользователя с итогами.</p>
+  <h4>Response 200</h4>
+<pre><code>{
+  "items": [
+    { "id": 1, "product_id": 1, "quantity": 2,
+      "product": { "id": 1, "name": "Ethiopia Yirgacheffe", "price": 24.99, ... } }
+  ],
+  "total_items": 2,
+  "total_price": 49.98
+}</code></pre>
+</div>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-post">POST</span>
+    <span class="endpoint-path">/api/cart</span>
+    <span class="badge badge-auth">🔒 required</span>
+  </div>
+  <p>Добавление товара в корзину. Если товар уже есть — увеличивает quantity.</p>
+<pre><code>{ "product_id": 1, "quantity": 2 }</code></pre>
+</div>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-put">PUT</span>
+    <span class="endpoint-path">/api/cart/{item_id}</span>
+    <span class="badge badge-auth">🔒 required</span>
+  </div>
+  <p>Обновление количества. Если quantity ≤ 0 — удаляет позицию.</p>
+<pre><code>{ "quantity": 5 }</code></pre>
+</div>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-delete">DELETE</span>
+    <span class="endpoint-path">/api/cart/{item_id}</span>
+    <span class="badge badge-auth">🔒 required</span>
+  </div>
+  <p>Удаление одной позиции из корзины.</p>
+</div>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-delete">DELETE</span>
+    <span class="endpoint-path">/api/cart</span>
+    <span class="badge badge-auth">🔒 required</span>
+  </div>
+  <p>Полная очистка корзины пользователя.</p>
+</div>
+
+<h3 id="api-orders">13. Orders — Заказы</h3>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-post">POST</span>
+    <span class="endpoint-path">/api/orders</span>
+    <span class="badge badge-auth">🔒 required</span>
+  </div>
+  <p>Создание заказа из текущего содержимого корзины. Корзина очищается, stock уменьшается.</p>
+  <h4>Request Body</h4>
+<pre><code>{
+  "customer_name": "John Doe",
+  "customer_email": "john@example.com",
+  "address": "123 Coffee Street",
+  "city": "Portland",
+  "zip_code": "97201"
+}</code></pre>
+  <h4>Алгоритм (транзакция)</h4>
+  <ol>
+    <li>Проверка: корзина не пуста → иначе <code>400</code></li>
+    <li>Создание записи <code>Order</code> с расчётом total</li>
+    <li>Для каждой позиции корзины → создание <code>OrderItem</code> (snapshot цены)</li>
+    <li>Уменьшение <code>product.stock</code> на quantity</li>
+    <li>Удаление всех позиций корзины пользователя</li>
+    <li>Commit транзакции</li>
+  </ol>
+</div>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span>
+    <span class="endpoint-path">/api/orders</span>
+    <span class="badge badge-auth">🔒 required</span>
+  </div>
+  <p>Получение всех заказов текущего пользователя (отсортированы по дате, новые сверху).</p>
+</div>
+
+<div class="endpoint-card">
+  <div class="endpoint-header">
+    <span class="badge badge-get">GET</span>
+    <span class="endpoint-path">/api/orders/{order_id}</span>
+    <span class="badge badge-auth">🔒 required</span>
+  </div>
+  <p>Получение конкретного заказа. Проверяется принадлежность текущему пользователю.</p>
+</div>
+
+<h3 id="api-summary">14. Сводная таблица API</h3>
+<table>
+  <tr><th>#</th><th>Метод</th><th>Endpoint</th><th>Auth</th><th>Описание</th></tr>
+  <tr><td>1</td><td><span class="badge badge-post">POST</span></td><td><code>/api/auth/register</code></td><td>—</td><td>Регистрация</td></tr>
+  <tr><td>2</td><td><span class="badge badge-post">POST</span></td><td><code>/api/auth/login</code></td><td>—</td><td>Вход</td></tr>
+  <tr><td>3</td><td><span class="badge badge-get">GET</span></td><td><code>/api/auth/me</code></td><td>🔒</td><td>Профиль</td></tr>
+  <tr><td>4</td><td><span class="badge badge-get">GET</span></td><td><code>/api/products</code></td><td>—</td><td>Список товаров</td></tr>
+  <tr><td>5</td><td><span class="badge badge-get">GET</span></td><td><code>/api/products/{id}</code></td><td>—</td><td>Детали товара</td></tr>
+  <tr><td>6</td><td><span class="badge badge-get">GET</span></td><td><code>/api/cart</code></td><td>🔒</td><td>Содержимое корзины</td></tr>
+  <tr><td>7</td><td><span class="badge badge-post">POST</span></td><td><code>/api/cart</code></td><td>🔒</td><td>Добавить в корзину</td></tr>
+  <tr><td>8</td><td><span class="badge badge-put">PUT</span></td><td><code>/api/cart/{id}</code></td><td>🔒</td><td>Обновить количество</td></tr>
+  <tr><td>9</td><td><span class="badge badge-delete">DEL</span></td><td><code>/api/cart/{id}</code></td><td>🔒</td><td>Удалить позицию</td></tr>
+  <tr><td>10</td><td><span class="badge badge-delete">DEL</span></td><td><code>/api/cart</code></td><td>🔒</td><td>Очистить корзину</td></tr>
+  <tr><td>11</td><td><span class="badge badge-post">POST</span></td><td><code>/api/orders</code></td><td>🔒</td><td>Создать заказ</td></tr>
+  <tr><td>12</td><td><span class="badge badge-get">GET</span></td><td><code>/api/orders</code></td><td>🔒</td><td>Список заказов</td></tr>
+  <tr><td>13</td><td><span class="badge badge-get">GET</span></td><td><code>/api/orders/{id}</code></td><td>🔒</td><td>Детали заказа</td></tr>
+  <tr><td>14</td><td><span class="badge badge-get">GET</span></td><td><code>/api/health</code></td><td>—</td><td>Health check</td></tr>
+</table>
+
+<!-- ═══════════════ 15-17. FLOWS ═══════════════ -->
+<h2 id="flows">15–17. Потоки данных (Sequence Diagrams)</h2>
+
+<h3 id="flow-auth">15. Поток авторизации</h3>
+<div class="mermaid">
+sequenceDiagram
+    actor U as Пользователь
+    participant FE as Frontend<br/>(AuthModal)
+    participant API as FastAPI<br/>Auth Router
+    participant DB as SQLite
+
+    Note over U,DB: Сценарий РЕГИСТРАЦИИ
+    U->>FE: Заполняет форму (email, username, password)
+    FE->>API: POST /api/auth/register {email, username, password}
+    API->>DB: SELECT * FROM users WHERE email=? OR username=?
+    DB-->>API: (пусто / найдено)
+    alt Email или username заняты
+        API-->>FE: 400 {detail: "Email already registered"}
+        FE-->>U: Показывает ошибку
+    else Уникальные данные
+        API->>API: hash_password(password) → bcrypt
+        API->>DB: INSERT INTO users (...)
+        DB-->>API: user.id
+        API->>API: create_access_token({sub: user.id}) → JWT
+        API-->>FE: 200 {access_token, user}
+        FE->>FE: localStorage.setItem('auth_token', token)
+        FE->>FE: localStorage.setItem('user', user)
+        FE-->>U: Закрывает модалку, показывает профиль
+    end
+
+    Note over U,DB: Сценарий ВХОДА
+    U->>FE: Вводит username + password
+    FE->>API: POST /api/auth/login {username, password}
+    API->>DB: SELECT * FROM users WHERE username=?
+    DB-->>API: user
+    API->>API: verify_password(input, hashed)
+    alt Неверный пароль
+        API-->>FE: 401 {detail: "Invalid credentials"}
+    else Успех
+        API->>API: create_access_token({sub: user.id})
+        API-->>FE: 200 {access_token, user}
+        FE->>FE: Сохраняет token + user в localStorage
+    end
+</div>
+
+<h3 id="flow-cart">16. Поток работы с корзиной</h3>
+<div class="mermaid">
+sequenceDiagram
+    actor U as Пользователь
+    participant FE as Frontend<br/>(CartContext)
+    participant API as FastAPI<br/>Cart Router
+    participant DB as SQLite
+
+    Note over U,DB: ДОБАВЛЕНИЕ ТОВАРА
+    U->>FE: Нажимает "Add to Cart"
+    FE->>API: POST /api/cart {product_id: 1, quantity: 1}<br/>+ Bearer JWT
+    API->>API: get_current_user(JWT) → user
+    API->>DB: SELECT * FROM products WHERE id=1
+    API->>DB: SELECT * FROM cart_items WHERE user_id=? AND product_id=1
+    alt Уже есть в корзине
+        API->>DB: UPDATE cart_items SET quantity=quantity+1
+    else Новый товар
+        API->>DB: INSERT INTO cart_items (user_id, product_id, quantity=1)
+    end
+    API->>DB: SELECT cart_items + products WHERE user_id=?
+    API-->>FE: 200 {items[], total_items, total_price}
+    FE->>FE: Обновляет state корзины
+    FE-->>U: Показывает toast "Added!" + обновляет badge
+
+    Note over U,DB: ИЗМЕНЕНИЕ КОЛИЧЕСТВА
+    U->>FE: Нажимает "+" или "−"
+    FE->>API: PUT /api/cart/{item_id} {quantity: N}
+    API->>DB: UPDATE cart_items SET quantity=N
+    alt quantity ≤ 0
+        API->>DB: DELETE FROM cart_items WHERE id=?
+    end
+    API-->>FE: 200 {обновлённая корзина}
+    FE-->>U: Обновляет UI корзины
+
+    Note over U,DB: УДАЛЕНИЕ ПОЗИЦИИ
+    U->>FE: Нажимает "🗑️"
+    FE->>API: DELETE /api/cart/{item_id}
+    API->>DB: DELETE FROM cart_items WHERE id=? AND user_id=?
+    API-->>FE: 200 {обновлённая корзина}
+    FE-->>U: Убирает позицию из UI
+</div>
+
+<h3 id="flow-order">17. Поток оформления заказа</h3>
+<div class="mermaid">
+sequenceDiagram
+    actor U as Пользователь
+    participant FE as Frontend<br/>(Checkout)
+    participant API as FastAPI<br/>Orders Router
+    participant DB as SQLite
+
+    U->>FE: Открывает Checkout, заполняет адрес
+    U->>FE: Нажимает "Place Order"
+    FE->>API: POST /api/orders {name, email, address, city, zip}
+    API->>API: get_current_user(JWT) → user
+    API->>DB: SELECT cart_items + products WHERE user_id=?
+
+    alt Корзина пуста
+        API-->>FE: 400 {detail: "Cart is empty"}
+        FE-->>U: Показывает ошибку
+    else Есть товары
+        API->>API: Рассчитывает total = Σ(quantity × price)
+        API->>DB: INSERT INTO orders (user_id, total, customer_*, status='pending')
+        DB-->>API: order.id
+
+        loop Для каждой позиции корзины
+            API->>DB: INSERT INTO order_items (order_id, product_id, product_name, quantity, unit_price)
+            API->>DB: UPDATE products SET stock = stock - quantity
+            API->>DB: DELETE FROM cart_items WHERE id=?
+        end
+
+        API->>DB: COMMIT
+        API-->>FE: 200 {order с items[]}
+        FE->>FE: Показывает "Order Confirmed! 🎉"
+        FE->>FE: Через 3 сек → редирект на Orders Panel
+        FE-->>U: Видит заказ в истории
+    end
+</div>
+
+<!-- ═══════════════ 18-19. STATES ═══════════════ -->
+<h2 id="states">18–19. Диаграммы состояний</h2>
+
+<h3 id="state-order">18. Жизненный цикл заказа</h3>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> Корзина: Добавление товаров
+    Корзина --> Корзина: Изменение количества
+    Корзина --> Корзина: Удаление позиций
+    Корзина --> Оформление: Place Order
+    Оформление --> ЗаказСоздан: POST /api/orders
+    ЗаказСоздан --> Подтверждён: Admin подтверждает
+    Подтверждён --> Отправлен: Отправка в доставку
+    Отправлен --> Доставлен: Вручение покупателю
+    Доставлен --> [*]
+
+    Корзина --> Корзина: Очистка (DELETE /api/cart)
+    Оформление --> Корзина: Отмена оформления
+
+    note right of ЗаказСоздан: status = "pending"\ntotal зафиксирован\nstock уменьшен
+    note right of Доставлен: Заказ завершён\nИстория доступна через\nGET /api/orders
+</div>
+
+<h3 id="state-user">19. Состояния пользователя в системе</h3>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> Аноним: Первый визит
+    Аноним --> Регистрация: Открыть AuthModal → Register
+    Аноним --> Вход: Открыть AuthModal → Login
+    Аноним --> Аноним: Просмотр каталога (без корзины)
+
+    Регистрация --> Авторизован: Успешная регистрация (JWT)
+    Регистрация --> Регистрация: Ошибка (email занят)
+
+    Вход --> Авторизован: Успешный логин (JWT)
+    Вход --> Вход: Неверный пароль
+
+    Авторизован --> Авторизован: Просмотр каталога
+    Авторизован --> Авторизован: Управление корзиной
+    Авторизован --> Авторизован: Оформление заказов
+    Авторизован --> Авторизован: Просмотр истории
+    Авторизован --> Аноним: Logout (очистка localStorage)
+
+    note right of Авторизован: JWT в localStorage\nДействует 24 часа\nВсе запросы с Bearer token
+</div>
+
+<!-- ═══════════════ 20. SECURITY ═══════════════ -->
+<h2 id="security">20. JWT-аутентификация</h2>
+
+<div class="mermaid">
+sequenceDiagram
+    participant FE as Frontend
+    participant MW as FastAPI Middleware
+    participant H as get_current_user()
+    participant DB as SQLite
+
+    FE->>MW: Request + Header: Authorization: Bearer <JWT>
+    MW->>H: Depends(security)
+    H->>H: jwt.decode(token, SECRET, [HS256])
+    alt Токен истёк / невалиден
+        H-->>FE: 401 {detail: "Invalid token"}
+    else Токен валиден
+        H->>H: payload.get("sub") → user_id
+        H->>DB: SELECT * FROM users WHERE id=user_id
+        alt Пользователь не найден
+            H-->>FE: 401 {detail: "User not found"}
+        else OK
+            H-->>MW: User object
+            MW->>MW: Продолжает обработку запроса
+        end
+    end
+</div>
+
+<h4>Структура JWT-токена</h4>
+<pre><code>// Payload
+{
+  "sub": 1,                    // user.id
+  "exp": 1705334400            // Unix timestamp (now + 24h)
+}
+
+// Header
+{
+  "alg": "HS256",
+  "typ": "JWT"
+}
+
+// Signature
+HMACSHA256(base64(header) + "." + base64(payload), SECRET_KEY)</code></pre>
+
+<div class="callout callout-danger">
+  <strong>🔒 Production Checklist</strong>
+  Перед выкладкой в продакшен необходимо:
+  <ul style="margin-top: 8px;">
+    <li>Заменить <code>SECRET_KEY</code> на случайную строку (min 32 символа)</li>
+    <li>Заменить SQLite на PostgreSQL/MySQL</li>
+    <li>Настроить CORS <code>allow_origins</code> на конкретные домены</li>
+    <li>Добавить rate limiting на endpoints авторизации</li>
+    <li>Включить HTTPS на сервере</li>
+  </ul>
+</div>
+
+<!-- ═══════════════ 21. DEPLOY ═══════════════ -->
+<h2 id="deploy-steps">21. Инструкция по развёртыванию</h2>
+
+<h3>Структура проекта</h3>
+<pre><code>artisan-roast/
+├── backend/
+│   ├── main.py              # FastAPI app + роутеры
+│   ├── database.py          # SQLAlchemy engine + session
+│   ├── models.py            # ORM-модели (5 таблиц)
+│   ├── schemas.py           # Pydantic-схемы
+│   ├── requirements.txt     # Python-зависимости
+│   └── app.db               # SQLite (создаётся автоматически)
+│
+├── src/                     # Frontend (React + TS)
+│   ├── App.tsx              # Корневой компонент
+│   ├── services/api.ts      # API-клиент
+│   ├── context/             # AuthContext, CartContext
+│   ├── components/          # UI-компоненты
+│   └── index.css            # Tailwind + кастомные стили
+│
+├── public/docs/             # Эта документация
+├── package.json
+├── vite.config.js
+└── README.md</code></pre>
+
+<h3>Запуск Backend</h3>
+<pre><code>cd backend
+
+# 1. Создать виртуальное окружение
+python -m venv venv
+source venv/bin/activate          # Linux/Mac
+# venv\Scripts\activate           # Windows
+
+# 2. Установить зависимости
+pip install -r requirements.txt
+
+# 3. Запустить сервер (auto-reload)
+uvicorn main:app --reload --port 8000
+
+# 4. Проверить
+curl http://localhost:8000/api/health
+# → {"status":"ok","service":"Artisan Roast API"}
+
+# 5. Открыть Swagger UI
+# → http://localhost:8000/docs</code></pre>
+
+<h3>Запуск Frontend</h3>
+<pre><code># В корне проекта
+npm install
+npm run dev          # dev-сервер на http://localhost:3000
+
+# Production build
+npm run build        # → dist/
+npm run preview      # предпросмотр собранной версии</code></pre>
+
+<h3>Переменные окружения</h3>
+<table>
+  <tr><th>Переменная</th><th>По умолчанию</th><th>Описание</th></tr>
+  <tr><td><code>VITE_API_URL</code></td><td><code>http://localhost:8000</code></td><td>URL бэкенда для фронтенда</td></tr>
+</table>
+
+<h3>Быстрый smoke-test</h3>
+<pre><code># 1. Регистрация
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","username":"test","password":"123456"}'
+# → {access_token: "...", user: {...}}
+
+# 2. Получить товары
+curl http://localhost:8000/api/products
+
+# 3. Добавить в корзину (подставить токен)
+curl -X POST http://localhost:8000/api/cart \
+  -H "Authorization: Bearer &lt;TOKEN&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{"product_id":1,"quantity":2}'
+
+# 4. Оформить заказ
+curl -X POST http://localhost:8000/api/orders \
+  -H "Authorization: Bearer &lt;TOKEN&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{"customer_name":"Test","customer_email":"test@test.com","address":"Street 1","city":"Portland","zip_code":"97201"}'</code></pre>
+
+<div class="callout callout-success">
+  <strong>✅ Документация актуальна</strong>
+  Все диаграммы и описания соответствуют коду в ветке main. При изменении API — обновляйте соответствующие секции этого документа.
+</div>
+
+<p style="margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; text-align: center;">
+  Artisan Roast · Техническая документация v1.0.0 · Системный анализ · 2024
+</p>
+
+</main>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#f5e6d3',
+      primaryTextColor: '#2d2416',
+      primaryBorderColor: '#7c4a1e',
+      lineColor: '#7c4a1e',
+      secondaryColor: '#dbeafe',
+      tertiaryColor: '#d1fae5',
+      fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+      fontSize: '14px'
+    },
+    flowchart: { curve: 'basis', padding: 16 },
+    sequence: { mirrorActors: false, messageAlign: 'left' }
+  });
+</script>
+
+</body>
+</html>
