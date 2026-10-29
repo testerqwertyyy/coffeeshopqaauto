@@ -4,7 +4,7 @@ Tables: users, products, cart_items, orders, order_items
 """
 from datetime import datetime
 from sqlalchemy import (
-    Column, Integer, String, Float, DateTime, ForeignKey, Table, Text
+    Column, Integer, String, Float, DateTime, ForeignKey, Text
 )
 from sqlalchemy.orm import relationship
 from database import Base

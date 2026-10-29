@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
@@ -209,7 +209,12 @@ def list_products(
     if category and category != "all":
         query = query.filter(Product.category == category)
     if search:
-        query = query.filter(Product.name.ilike(f"%{search}%"))
+        search_filter = f"%{search}%"
+        query = query.filter(
+            (Product.name.ilike(search_filter)) |
+            (Product.origin.ilike(search_filter)) |
+            (Product.description.ilike(search_filter))
+        )
     return query.all()
 
 
@@ -390,9 +395,9 @@ def create_order(
         db.add(order_item)
         # Decrease stock
         ci.product.stock -= ci.quantity
+        # Remove cart item individually (safe for session state)
+        db.delete(ci)
 
-    # Clear cart
-    db.query(CartItem).filter(CartItem.user_id == current_user.id).delete()
     db.commit()
     db.refresh(order)
 
